@@ -7,9 +7,8 @@ namespace SchoolMgtSystemApi.Services
     {
         private readonly IMongoCollection<Course> _courses;
 
-        public CourseService(ISchoolDatabaseSettings settings)
+        public CourseService(ISchoolDatabaseSettings settings, IMongoClient client)
         {
-            var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _courses = database.GetCollection<Course>(settings.CourseCollectionName);
         }

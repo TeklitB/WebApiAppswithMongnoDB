@@ -7,9 +7,8 @@ namespace SchoolMgtSystemApi.Services
     {
         private readonly IMongoCollection<Student> _students;
 
-        public StudentService(ISchoolDatabaseSettings settings)
+        public StudentService(ISchoolDatabaseSettings settings, IMongoClient client)
         {
-            var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _students = database.GetCollection<Student>(settings.StudentCollectionName);
         }
