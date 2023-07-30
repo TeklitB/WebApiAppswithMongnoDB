@@ -1,4 +1,9 @@
 
+using AccountMgtApi.Models;
+using AccountMgtApi.Services;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+
 namespace AccountMgtApi
 {
     public class Program
@@ -8,6 +13,16 @@ namespace AccountMgtApi
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.Configure<BankSettings>(builder.Configuration.GetSection(nameof(BankSettings)));
+
+            builder.Services.AddSingleton<IBankSettings>(sp => sp.GetRequiredService<IOptions<BankSettings>>().Value);
+
+            builder.Services.AddSingleton<IMongoClient>(sp =>
+            new MongoClient(builder.Configuration.GetValue<string>("BankSettings:ConnectionString")));
+
+            builder.Services.AddScoped<IAccountServices, AccountServices>();
+            builder.Services.AddScoped<IUseBsonDocumentServices, UseBsonDocumentServices>();
+            builder.Services.AddScoped<ITransactionServices, TransactionServices>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

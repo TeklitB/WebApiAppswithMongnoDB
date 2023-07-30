@@ -5,79 +5,81 @@ namespace AccountMgtApi.Services
 {
     public class AccountServices : IAccountServices
     {
-        private readonly IMongoCollection<Account> accountsCollection;
-        public AccountServices(IMongoCollection<Account> accountsCollection) 
+        private readonly IMongoCollection<Account> _accountsCollection;
+
+        public AccountServices(IBankSettings bankSettings, IMongoClient mongoClient) 
         {
-            this.accountsCollection = accountsCollection;
+            var database = mongoClient.GetDatabase(bankSettings.DatabaseName);
+            _accountsCollection = database.GetCollection<Account>(bankSettings.AccountCollectionName);
         }
 
         public DeleteResult deleteAccountByAccountId(string accountId)
         {
-            return accountsCollection.DeleteOne(a => a.AccountId == accountId);
+            return _accountsCollection.DeleteOne(a => a.AccountId == accountId);
         }
 
         public async Task<DeleteResult> deleteAccountByAccountIdAsync(string accountId)
         {
-            return await accountsCollection.DeleteOneAsync(a => a.AccountId == accountId);
+            return await _accountsCollection.DeleteOneAsync(a => a.AccountId == accountId);
         }
 
         public DeleteResult deleteAccountsByBalance(decimal balance)
         {
-            return accountsCollection.DeleteMany(a => a.Balance < balance);
+            return _accountsCollection.DeleteMany(a => a.Balance < balance);
         }
 
         public async Task<DeleteResult> deleteAccountsByBalanceAsync(decimal balance)
         {
-            return await accountsCollection.DeleteManyAsync(a => a.Balance <= balance);
+            return await _accountsCollection.DeleteManyAsync(a => a.Balance <= balance);
         }
 
-        public Account searchAccountByAccountId(string accountId)
+        public Account SearchAccountByAccountId(string accountId)
         {
-            return accountsCollection.Find(a => a.AccountId == accountId).FirstOrDefault();
+            return _accountsCollection.Find(a => a.AccountId == accountId).FirstOrDefault();
         }
 
         public async Task<Account> searchAccountByAccountIdAsync(string accountId)
         {
-            var accounts = await accountsCollection.FindAsync(a => a.AccountId == accountId);
+            var accounts = await _accountsCollection.FindAsync(a => a.AccountId == accountId);
             return accounts.FirstOrDefault();
         }
 
-        public List<Account> searchAccountsByAcountType(string accountType)
+        public List<Account> SearchAccountsByAcountType(string accountType)
         {
-            return accountsCollection.Find(a => a.AccountType == accountType)
+            return _accountsCollection.Find(a => a.AccountType == accountType)
                 .SortByDescending(a => a.Balance)
-                .Skip(5) // skips the first 5 results
+                //.Skip(5) // skips the first 5 results
                 .Limit(20) // limit the returned data set to next 20 items
                 .ToList();
         }
 
-        public List<Account> searchAllAccounts(string accountId)
+        public List<Account> SearchAllAccounts()
         {
-            return accountsCollection.Find(_ => true).ToList();
+            return _accountsCollection.Find(_ => true).ToList();
         }
 
-        public UpdateResult updateAcountByAccountIdAndBalance(string accountId, decimal balance)
-        {
-            var filter = Builders<Account>.Filter.Eq(a => a.AccountId, accountId);
-            var update = Builders<Account>.Update.Set(a => a.Balance, balance);
-
-            return accountsCollection.UpdateOne(filter, update);
-        }
-
-        public async Task<UpdateResult> updateAcountByAccountIdAndBalanceAsync(string accountId, decimal balance)
+        public UpdateResult UpdateBalanceByAccountId(string accountId, decimal balance)
         {
             var filter = Builders<Account>.Filter.Eq(a => a.AccountId, accountId);
             var update = Builders<Account>.Update.Set(a => a.Balance, balance);
 
-            return await accountsCollection.UpdateOneAsync(filter, update);
+            return _accountsCollection.UpdateOne(filter, update);
         }
 
-        public UpdateResult updateAcountsByAccountIdAndBalance(string accountId, decimal balance)
+        public async Task<UpdateResult> UpdateBalanceByAccountIdAsync(string accountId, decimal balance)
+        {
+            var filter = Builders<Account>.Filter.Eq(a => a.AccountId, accountId);
+            var update = Builders<Account>.Update.Set(a => a.Balance, balance);
+
+            return await _accountsCollection.UpdateOneAsync(filter, update);
+        }
+
+        public UpdateResult UpdateBalancesByAccountId(string accountId, decimal balance)
         {
             var filter = Builders<Account>.Filter.Eq(a => a.AccountId, accountId);
             var update = Builders<Account>.Update.Inc(a => a.Balance, balance);
 
-            return accountsCollection.UpdateMany(filter, update);
+            return _accountsCollection.UpdateMany(filter, update);
         }
     }
 }

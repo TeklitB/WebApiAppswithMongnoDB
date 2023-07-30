@@ -1,12 +1,13 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace AccountMgtApi.Models
 {
-    public class Transfer
+    public class Transactions
     {
         [BsonId]
-        [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
-        public int Id { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
         [BsonElement("transfer_id")]
         public string TransferId { get; set; }
         [BsonElement("to_account")]
@@ -14,7 +15,7 @@ namespace AccountMgtApi.Models
         [BsonElement("from_account")]
         public string FromAccount { get; set; }
         [BsonElement("amount")]
-        public int Amount { get; set; }
+        public decimal Amount { get; set; }
         [BsonElement("last_updated")]
         public DateTimeOffset LastUpdated { get; set; }
     }

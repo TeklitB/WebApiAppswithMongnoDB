@@ -5,7 +5,7 @@ namespace AccountMgtApi.Services
 {
     public interface IUseBsonDocumentServices
     {
-        void addAccount();
+        void AddAccount();
         void AddAccounts();
         BsonDocument searchAccount(string id);
         Task<List<BsonDocument>> searchAccountAsync(decimal balance);

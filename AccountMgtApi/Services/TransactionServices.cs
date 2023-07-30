@@ -5,18 +5,19 @@ namespace AccountMgtApi.Services
 {
     public class TransactionServices : ITransactionServices
     {
-        private readonly MongoClient _client;
+        private readonly IMongoClient _client;
         private readonly IMongoCollection<Account> _accountsCollection;
-        private readonly IMongoCollection<Transfer> _transfersCollection;
+        private readonly IMongoCollection<Transactions> _transfersCollection;
 
-        public TransactionServices(MongoClient client, IMongoCollection<Account> accountsCollection, IMongoCollection<Transfer> transfersCollection) 
+        public TransactionServices(IBankSettings settings, IMongoClient client) 
         { 
             _client = client;
-            _accountsCollection = accountsCollection;
-            _transfersCollection = transfersCollection;
+            var database = _client.GetDatabase(settings.DatabaseName);
+            _accountsCollection = database.GetCollection<Account>(settings.AccountCollectionName);
+            _transfersCollection = database.GetCollection<Transactions>(settings.TransactionCollectionName);
         }
 
-        public void PerformeTransactions(string fromId, string toId, string transferId, int transferAmount)
+        public void PerformeTransfer(string fromId, string toId, string transferId, decimal transferAmount)
         {
             using (var session = _client.StartSession())
             {
@@ -40,7 +41,7 @@ namespace AccountMgtApi.Services
                         var toAccountId = toAccountResult.AccountId;
 
                         // Create the transfer record
-                        var transferDocument = new Transfer
+                        var transferDocument = new Transactions
                         {
                             TransferId = transferId,
                             ToAccount = toAccountId,
@@ -69,7 +70,7 @@ namespace AccountMgtApi.Services
             }
         }
 
-        public async Task PerformeTransactionsAsync(string fromId, string toId, string transferId, int transferAmount)
+        public async Task PerformeTransactionsAsync(string fromId, string toId, string transferId, decimal transferAmount)
         {
             using (var session = await _client.StartSessionAsync())
             {
@@ -92,7 +93,7 @@ namespace AccountMgtApi.Services
                             var toAccountId = toAccountResult.AccountId;
 
                             // Create the transfer record
-                            var transferDocument = new Transfer
+                            var transferDocument = new Transactions
                             {
                                 TransferId = transferId,
                                 ToAccount = toAccountId,

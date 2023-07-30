@@ -5,13 +5,13 @@ namespace AccountMgtApi.Services
 {
     public interface IAccountServices
     {
-        List<Account> searchAllAccounts(string accountId);
-        Account searchAccountByAccountId(string accountId);
+        List<Account> SearchAllAccounts();
+        Account SearchAccountByAccountId(string accountId);
         Task<Account> searchAccountByAccountIdAsync(string accountId);
-        List<Account> searchAccountsByAcountType(string accountType);
-        UpdateResult updateAcountByAccountIdAndBalance(string accountId, decimal balance);
-        Task<UpdateResult> updateAcountByAccountIdAndBalanceAsync(string accountId, decimal balance);
-        UpdateResult updateAcountsByAccountIdAndBalance(string accountId, decimal balance);
+        List<Account> SearchAccountsByAcountType(string accountType);
+        UpdateResult UpdateBalanceByAccountId(string accountId, decimal balance);
+        Task<UpdateResult> UpdateBalanceByAccountIdAsync(string accountId, decimal balance);
+        UpdateResult UpdateBalancesByAccountId(string accountId, decimal balance);
         DeleteResult deleteAccountByAccountId(string accountId);
         Task<DeleteResult> deleteAccountByAccountIdAsync(string accountId);
         DeleteResult deleteAccountsByBalance(decimal balance);
