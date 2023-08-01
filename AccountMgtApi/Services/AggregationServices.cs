@@ -9,13 +9,14 @@ namespace AccountMgtApi.Services
         IMongoCollection<Account> _accountsCollection;
         IMongoCollection<BsonDocument> _accountsCollectionBson;
 
-        public AggregationServices(IMongoCollection<Account> accountsCollection, IMongoCollection<BsonDocument> accountsCollectionBson) 
-        { 
-            _accountsCollection = accountsCollection;
-            _accountsCollectionBson = accountsCollectionBson;
+        public AggregationServices(IBankSettings bankSettings, IMongoClient mongoClient) 
+        {
+            var database = mongoClient.GetDatabase(bankSettings.DatabaseName);
+            _accountsCollection = database.GetCollection<Account>(bankSettings.AccountCollectionName);
+            _accountsCollectionBson = database.GetCollection<BsonDocument>(bankSettings.AccountCollectionName);
         }
 
-        public List<Account> matchAccounts(decimal balance)
+        public List<Account> SearchAccountsLessThanBalance(decimal balance)
         {
             var matchStage = Builders<Account>.Filter.Lte(a => a.Balance, balance);
             var aggregate = _accountsCollection.Aggregate().Match(matchStage);
@@ -23,7 +24,15 @@ namespace AccountMgtApi.Services
             return aggregate.ToList();
         }
 
-        public List<BsonDocument> matchAccountsBsonDocument(decimal balance)
+        public List<Account> SearchAccountsGreaterThanBalance(decimal balance)
+        {
+            var matchStage = Builders<Account>.Filter.Gte(a => a.Balance, balance);
+            var aggregate = _accountsCollection.Aggregate().Match(matchStage);
+
+            return aggregate.ToList();
+        }
+
+        public List<BsonDocument> MatchAccountsBsonDocument(decimal balance)
         {
             var matchStage = Builders<BsonDocument>.Filter.Lte("balance", balance);
             var aggregate = _accountsCollectionBson.Aggregate().Match(matchStage);
@@ -31,7 +40,7 @@ namespace AccountMgtApi.Services
             return aggregate.ToList();
         }
 
-        public List<GbpAccount> groupAccountsByAcountType(decimal balance)
+        public List<GbpAccount> GroupAccountsByAccountType(decimal balance)
         {
             var matchStage = Builders<Account>.Filter.Lte(a => a.Balance, balance);
 
@@ -46,7 +55,19 @@ namespace AccountMgtApi.Services
             return aggregate.ToList();
         }
 
-        public List<BsonDocument> groupAccountsByAcountTypeBsonDocument(decimal balance)
+        public List<GbpAccount> GroupAccountsByAccountType()
+        {
+            var aggregate = _accountsCollection.Aggregate()
+                .Group(a => a.AccountType, r => new GbpAccount
+                {
+                    AccountType = r.Key,
+                    Total = r.Sum(a => 1)
+                });
+
+            return aggregate.ToList();
+        }
+
+        public List<BsonDocument> GroupAccountsByAccountTypeBsonDocument(decimal balance)
         {
             var matchStage = Builders<Account>.Filter.Lte(u => u.Balance, balance);
             var aggregate = _accountsCollection.Aggregate()
@@ -56,7 +77,7 @@ namespace AccountMgtApi.Services
             return aggregate.ToList();
         }
 
-        public List<Account> sortAccountsByBalance(decimal balance)
+        public List<Account> SortAccountsByBalance(decimal balance)
         {
             var matchStage = Builders<Account>.Filter.Lt(u => u.Balance, balance);
             var aggregate = _accountsCollection.Aggregate()
@@ -65,7 +86,7 @@ namespace AccountMgtApi.Services
             return aggregate.ToList();
         }
 
-        public List<BsonDocument> sortAccountsByBalanceBsonDocument(decimal balance)
+        public List<BsonDocument> SortAccountsByBalanceBsonDocument(decimal balance)
         {
             var matchStage = Builders<BsonDocument>.Filter.Lt("balance", balance);
             var sort = Builders<BsonDocument>.Sort.Descending("balance");

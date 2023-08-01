@@ -23,6 +23,7 @@ namespace AccountMgtApi
             builder.Services.AddScoped<IAccountServices, AccountServices>();
             builder.Services.AddScoped<IUseBsonDocumentServices, UseBsonDocumentServices>();
             builder.Services.AddScoped<ITransactionServices, TransactionServices>();
+            builder.Services.AddScoped<IAggregationServices, AggregationServices>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

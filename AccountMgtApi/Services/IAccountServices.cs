@@ -7,14 +7,14 @@ namespace AccountMgtApi.Services
     {
         List<Account> SearchAllAccounts();
         Account SearchAccountByAccountId(string accountId);
-        Task<Account> searchAccountByAccountIdAsync(string accountId);
-        List<Account> SearchAccountsByAcountType(string accountType);
+        Task<Account> SearchAccountByAccountIdAsync(string accountId);
+        List<Account> SearchAccountsByAccountType(string accountType);
         UpdateResult UpdateBalanceByAccountId(string accountId, decimal balance);
         Task<UpdateResult> UpdateBalanceByAccountIdAsync(string accountId, decimal balance);
         UpdateResult UpdateBalancesByAccountId(string accountId, decimal balance);
-        DeleteResult deleteAccountByAccountId(string accountId);
-        Task<DeleteResult> deleteAccountByAccountIdAsync(string accountId);
-        DeleteResult deleteAccountsByBalance(decimal balance);
-        Task<DeleteResult> deleteAccountsByBalanceAsync(decimal balance);
+        DeleteResult DeleteAccountByAccountId(string accountId);
+        Task<DeleteResult> DeleteAccountByAccountIdAsync(string accountId);
+        DeleteResult DeleteAccountsByBalance(decimal balance);
+        Task<DeleteResult> DeleteAccountsByBalanceAsync(decimal balance);
     }
 }

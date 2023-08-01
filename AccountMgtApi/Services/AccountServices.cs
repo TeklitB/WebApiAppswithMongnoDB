@@ -13,22 +13,22 @@ namespace AccountMgtApi.Services
             _accountsCollection = database.GetCollection<Account>(bankSettings.AccountCollectionName);
         }
 
-        public DeleteResult deleteAccountByAccountId(string accountId)
+        public DeleteResult DeleteAccountByAccountId(string accountId)
         {
             return _accountsCollection.DeleteOne(a => a.AccountId == accountId);
         }
 
-        public async Task<DeleteResult> deleteAccountByAccountIdAsync(string accountId)
+        public async Task<DeleteResult> DeleteAccountByAccountIdAsync(string accountId)
         {
             return await _accountsCollection.DeleteOneAsync(a => a.AccountId == accountId);
         }
 
-        public DeleteResult deleteAccountsByBalance(decimal balance)
+        public DeleteResult DeleteAccountsByBalance(decimal balance)
         {
             return _accountsCollection.DeleteMany(a => a.Balance < balance);
         }
 
-        public async Task<DeleteResult> deleteAccountsByBalanceAsync(decimal balance)
+        public async Task<DeleteResult> DeleteAccountsByBalanceAsync(decimal balance)
         {
             return await _accountsCollection.DeleteManyAsync(a => a.Balance <= balance);
         }
@@ -38,13 +38,13 @@ namespace AccountMgtApi.Services
             return _accountsCollection.Find(a => a.AccountId == accountId).FirstOrDefault();
         }
 
-        public async Task<Account> searchAccountByAccountIdAsync(string accountId)
+        public async Task<Account> SearchAccountByAccountIdAsync(string accountId)
         {
             var accounts = await _accountsCollection.FindAsync(a => a.AccountId == accountId);
             return accounts.FirstOrDefault();
         }
 
-        public List<Account> SearchAccountsByAcountType(string accountType)
+        public List<Account> SearchAccountsByAccountType(string accountType)
         {
             return _accountsCollection.Find(a => a.AccountType == accountType)
                 .SortByDescending(a => a.Balance)

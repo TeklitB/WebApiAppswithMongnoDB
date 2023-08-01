@@ -11,14 +11,17 @@ namespace AccountMgtApi.Controllers
         private readonly IAccountServices _accountServices;
         private readonly IUseBsonDocumentServices _useBsonDocumentServices;
         private readonly ITransactionServices _transfer;
+        private readonly IAggregationServices _aggregationServices;
 
         public AccountsController(IAccountServices accountServices, 
             IUseBsonDocumentServices useBsonDocumentServices,
-            ITransactionServices transfer) 
+            ITransactionServices transfer,
+            IAggregationServices aggregationServices) 
         { 
             _accountServices = accountServices;
             _useBsonDocumentServices = useBsonDocumentServices;
             _transfer = transfer;
+            _aggregationServices = aggregationServices;
         }
 
         [HttpPost]
@@ -61,7 +64,7 @@ namespace AccountMgtApi.Controllers
         [Route(nameof(SearchAccountsByAcountType))]
         public ActionResult<Account> SearchAccountsByAcountType([FromQuery] string accountType)
         {
-            var account = _accountServices.SearchAccountsByAcountType(accountType);
+            var account = _accountServices.SearchAccountsByAccountType(accountType);
 
             return Ok(account);
         }
@@ -86,6 +89,33 @@ namespace AccountMgtApi.Controllers
             _transfer.PerformeTransfer(fromId, toId, transferId, transferAmount);
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Route(nameof(SearchAccountsLessThanBalance))]
+        public ActionResult<Account> SearchAccountsLessThanBalance(decimal balance)
+        {
+            var account = _aggregationServices.SearchAccountsLessThanBalance(balance);
+
+            return Ok(account);
+        }
+
+        [HttpGet]
+        [Route(nameof(SearchAccountsGreaterThanBalance))]
+        public ActionResult<Account> SearchAccountsGreaterThanBalance(decimal balance)
+        {
+            var account = _aggregationServices.SearchAccountsGreaterThanBalance(balance);
+
+            return Ok(account);
+        }
+
+        [HttpGet]
+        [Route(nameof(GroupAccountsByAccountType))]
+        public ActionResult<GbpAccount> GroupAccountsByAccountType()
+        {
+            var gbp = _aggregationServices.GroupAccountsByAccountType();
+
+            return Ok(gbp);
         }
     }
 }
